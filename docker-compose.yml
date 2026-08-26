@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # 1. Base de Datos (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: optiplant_db
+    restart: always
+    environment:
+      POSTGRES_USER: usuario_inventario
+      POSTGRES_PASSWORD: password_seguro
+      POSTGRES_DB: inventario_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Postgres ejecuta automaticamente cualquier .sql que encuentre en
+      # /docker-entrypoint-initdb.d/ la PRIMERA vez que el volumen esta
+      # vacio. Asi creamos todas las tablas sin tocar nada a mano.
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # 2. Backend (Python + FastAPI)
+  backend:
+    build: ./backend
+    container_name: optiplant_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://usuario_inventario:password_seguro@db:5432/inventario_db
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
