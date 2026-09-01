@@ -15,7 +15,8 @@ CREATE TABLE sucursales (
     id          SERIAL PRIMARY KEY,  --entero que autoincrementa
     nombre      VARCHAR(100) NOT NULL UNIQUE,
     ciudad      VARCHAR(100) NOT NULL,
-    direccion   VARCHAR(200)
+    direccion   VARCHAR(200),
+    creado_en   TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- ---------------------------------------------------------------------
@@ -32,7 +33,8 @@ CREATE TABLE usuarios (
     password_hash   VARCHAR(255) NOT NULL,
     rol             rol_usuario NOT NULL DEFAULT 'operador_inventario',
     sucursal_id     INTEGER REFERENCES sucursales(id), --llave foranea
-    activo          BOOLEAN NOT NULL DEFAULT TRUE
+    activo          BOOLEAN NOT NULL DEFAULT TRUE,
+    creado_en       TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- ---------------------------------------------------------------------
@@ -46,7 +48,8 @@ CREATE TABLE productos (
     unidad_medida   VARCHAR(20) NOT NULL DEFAULT 'unidad',
     stock_minimo    INTEGER NOT NULL DEFAULT 5,
     precio_venta    NUMERIC(12,2) NOT NULL DEFAULT 0,
-    activo          BOOLEAN NOT NULL DEFAULT TRUE
+    activo          BOOLEAN NOT NULL DEFAULT TRUE,
+    creado_en       TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- ---------------------------------------------------------------------
@@ -78,7 +81,7 @@ CREATE TABLE movimientos_inventario (
     motivo          VARCHAR(300),
     referencia      VARCHAR(100),
     usuario_id      INTEGER NOT NULL REFERENCES usuarios(id),
-    fecha           TIMESTAMP NOT NULL DEFAULT NOW()
+    fecha_registro  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- ---------------------------------------------------------------------
@@ -89,7 +92,8 @@ CREATE TABLE proveedores (
     nombre      VARCHAR(150) NOT NULL,
     contacto    VARCHAR(150),
     telefono    VARCHAR(30),
-    email       VARCHAR(120)
+    email       VARCHAR(120),
+    creado_en   TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- ---------------------------------------------------------------------
@@ -104,7 +108,7 @@ CREATE TABLE ordenes_compra (
     usuario_id          INTEGER NOT NULL REFERENCES usuarios(id),
     estado              estado_orden_compra NOT NULL DEFAULT 'borrador',
     plazo_pago_dias     INTEGER NOT NULL DEFAULT 0,
-    fecha               TIMESTAMP NOT NULL DEFAULT NOW()
+    fecha_registro      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE detalle_compra (
@@ -123,7 +127,7 @@ CREATE TABLE ventas (
     id              SERIAL PRIMARY KEY,
     sucursal_id     INTEGER NOT NULL REFERENCES sucursales(id),
     usuario_id      INTEGER NOT NULL REFERENCES usuarios(id),
-    fecha           TIMESTAMP NOT NULL DEFAULT NOW(),
+    fecha_registro  TIMESTAMP NOT NULL DEFAULT NOW(),
     total           NUMERIC(12,2) NOT NULL DEFAULT 0
 );
 
@@ -176,7 +180,7 @@ CREATE TABLE alertas (
     transferencia_id    INTEGER REFERENCES transferencias(id),
     mensaje             VARCHAR(300) NOT NULL,
     resuelta            BOOLEAN NOT NULL DEFAULT FALSE,
-    fecha               TIMESTAMP NOT NULL DEFAULT NOW()
+    fecha_registro      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- ---------------------------------------------------------------------
