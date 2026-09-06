@@ -16,6 +16,7 @@ CREATE TABLE sucursales (
     nombre      VARCHAR(100) NOT NULL UNIQUE,
     ciudad      VARCHAR(100) NOT NULL,
     direccion   VARCHAR(200),
+    activo      BOOLEAN NOT NULL DEFAULT TRUE,
     creado_en   TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -90,9 +91,10 @@ CREATE TABLE movimientos_inventario (
 CREATE TABLE proveedores (
     id          SERIAL PRIMARY KEY,
     nombre      VARCHAR(150) NOT NULL,
-    contacto    VARCHAR(150),
+    direccion    VARCHAR(200),
     telefono    VARCHAR(30),
     email       VARCHAR(120),
+    activo      BOOLEAN NOT NULL DEFAULT TRUE,
     creado_en   TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

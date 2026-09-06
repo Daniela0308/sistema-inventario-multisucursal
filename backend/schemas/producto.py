@@ -12,7 +12,6 @@ class ProductoOut(BaseModel):
     stock_minimo: int
     precio_venta: Decimal
     activo: bool
-    campo_inventado: str = "esto no existe en la bd"
 
     class Config:
         from_attributes = True

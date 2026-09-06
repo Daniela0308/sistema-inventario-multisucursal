@@ -1,76 +1,373 @@
 # Sistema de Inventario Multi-Sucursal - OptiPlant
 
-## 1. Descripción del proyecto
+## 1. Descripción
 
-Aplicación web para la gestión de inventario de múltiples sucursales de una misma organización.
+OptiPlant es un sistema web para la gestión de inventario en múltiples sucursales. Permite administrar productos, sucursales, usuarios, proveedores y movimientos de inventario, manteniendo trazabilidad sobre las operaciones realizadas.
 
-El sistema busca permitir que cada sucursal gestione sus operaciones de inventario de manera independiente, manteniendo al mismo tiempo visibilidad y coherencia de la información entre las diferentes sucursales.
+Proyecto académico desarrollado como parte de una evaluación técnica de desarrollo de software.
 
-La solución se desarrolla bajo una arquitectura separada por capas, compuesta por frontend, backend y base de datos, comunicados mediante una API.
+## 2. Objetivo
 
-## 2. Arquitectura
+Desarrollar una solución centralizada para controlar el inventario de diferentes sucursales mediante una arquitectura de tres capas, una API REST, autenticación y una base de datos relacional.
 
-La solución adopta una arquitectura desacoplada en tres capas principales:
+## 3. Funcionalidades implementadas
 
-- **Frontend:** responsable de la presentación y de la interacción con el usuario.
-- **Backend:** responsable de la lógica de negocio, validaciones y exposición de la API.
-- **Base de datos:** responsable del almacenamiento persistente de la información.
+Actualmente el sistema cuenta con:
 
-La comunicación entre el frontend y el backend se realizará exclusivamente mediante la API, manteniendo la lógica de negocio centralizada en el backend.
+* Inicio de sesión mediante autenticación JWT.
+* Gestión de usuarios y roles.
+* Gestión de productos.
+* Gestión de sucursales.
+* Gestión básica de proveedores.
+* Consulta de inventario por sucursal.
+* Registro de entradas y salidas de inventario.
+* Ajustes de inventario.
+* Historial de movimientos.
+* Alertas de stock bajo mediante API.
+* Control de permisos según el rol del usuario.
 
-Esta separación responde directamente a los requisitos técnicos definidos para la prueba.
+## 4. Roles del sistema
 
-### Arquitectura general
+### Administrador general
 
-┌──────────────────────────────┐
-│          FRONTEND            │
-│     Interfaz de usuario      │
-└──────────────┬───────────────┘
-               │
-               │ REST API
+* Gestionar productos.
+* Gestionar sucursales.
+* Gestionar usuarios y roles.
+* Gestionar proveedores.
+* Consultar información general.
+
+### Gerente de sucursal
+
+* Consultar información de su sucursal.
+* Supervisar inventario y movimientos según sus permisos.
+
+### Operador de inventario
+
+* Consultar inventario.
+* Registrar movimientos de inventario.
+* Realizar operaciones autorizadas.
+
+## 5. Arquitectura
+
+El sistema utiliza una arquitectura de tres capas:
+
+```text
+┌─────────────────────────────┐
+│          FRONTEND           │
+│        React + Vite         │
+└──────────────┬──────────────┘
+               │ HTTP / REST
                ▼
-┌──────────────────────────────┐
-│           BACKEND            │
-│           FastAPI            │
-│       Lógica de negocio      │
-└──────────────┬───────────────┘
+┌─────────────────────────────┐
+│          BACKEND            │
+│      Python + FastAPI       │
+│   SQLAlchemy + Pydantic     │
+└──────────────┬──────────────┘
                │
-               │ SQL
                ▼
-┌──────────────────────────────┐
-│          DATABASE            │
-│         PostgreSQL           │
-└──────────────────────────────┘
+┌─────────────────────────────┐
+│       BASE DE DATOS         │
+│        PostgreSQL 15        │
+└─────────────────────────────┘
+```
 
-## 3. Stack tecnológico
-### 3.1 Python
+El frontend se comunica con el backend mediante una API REST. La lógica de negocio y las validaciones se ejecutan principalmente en el backend.
 
-Python fue seleccionado como lenguaje principal del backend debido a la experiencia previa con el lenguaje y al conocimiento adquirido durante el desarrollo de otros proyectos.
+## 6. Tecnologías utilizadas
 
-Además, su ecosistema permite utilizar diferentes herramientas y frameworks orientados al desarrollo de APIs y aplicaciones backend.
+### Frontend
 
-### 3.2 FastAPI
+* React 18
+* Vite 5
+* JavaScript
+* HTML
+* CSS
+* Node.js 20
 
-FastAPI fue seleccionado como framework para el desarrollo del backend.
+### Backend
 
-Una de las principales razones de esta elección es la necesidad de mantener una separación clara entre frontend, backend y base de datos. FastAPI permite desarrollar el backend como una API independiente, evitando acoplar la lógica de negocio a la capa de presentación.
+* Python
+* FastAPI
+* SQLAlchemy
+* Pydantic
+* JWT
+* Passlib
+* bcrypt
 
-Esta decisión también permite que el frontend consuma los servicios del sistema mediante endpoints REST.
+### Base de datos
 
-Otra razón para utilizar FastAPI es su enfoque orientado al desarrollo de APIs y su buen rendimiento, características que resultan adecuadas para una aplicación que debe manejar operaciones de inventario y comunicación entre diferentes sucursales.
+* PostgreSQL 15
 
-### 3.3 PostgreSQL
+### Infraestructura
 
-PostgreSQL fue seleccionado como motor de base de datos debido a la experiencia previa con esta tecnología y a su afinidad con el stack utilizado para el backend.
+* Docker
+* Docker Compose
 
-El sistema requiere manejar información relacionada entre productos, sucursales, inventarios, movimientos, compras, ventas y transferencias, por lo que se utilizará un modelo de datos relacional.
+## 7. Estructura del proyecto
 
-PostgreSQL permitirá mantener la integridad y consistencia de las relaciones entre las diferentes entidades del sistema.
+```text
+sistema-inventario-multisucursal/
+│
+├── backend/
+│   ├── routers/
+│   │   ├── auth.py
+│   │   ├── producto.py
+│   │   ├── sucursal.py
+│   │   ├── usuario.py
+│   │   ├── inventario.py
+│   │   └── proveedor.py
+│   │
+│   ├── schemas/
+│   ├── main.py
+│   ├── models.py
+│   ├── database.py
+│   ├── security.py
+│   ├── services.py
+│   └── seed.py
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── App.jsx
+│   │   ├── api.js
+│   │   ├── main.jsx
+│   │   └── AuthContext.jsx
+│   ├── Dockerfile
+│   └── package.json
+│
+├── db/
+│   └── init.sql
+│
+├── docs/
+│   └── uso-ia.md
+│
+├── docker-compose.yml
+└── README.md
+```
 
-### 3.4 Docker
+## 8. Base de datos
 
-Docker se utiliza para contenerizar los diferentes componentes de la aplicación.
+La base de datos utiliza PostgreSQL y contempla entidades para:
 
-La solución se estructura mediante servicios independientes para frontend, backend y base de datos, permitiendo que el proyecto pueda ejecutarse de manera reproducible mediante Docker Compose.
+* Sucursales.
+* Usuarios.
+* Productos.
+* Inventarios.
+* Movimientos de inventario.
+* Proveedores.
+* Órdenes de compra.
+* Detalles de compra.
+* Ventas.
+* Detalles de venta.
+* Transferencias.
+* Alertas.
 
-Esto facilita la configuración del entorno de desarrollo y permite mantener aisladas las diferentes capas de la aplicación.
+Las entidades de compras, ventas y transferencias están contempladas en el esquema inicial, pero requieren integración completa con backend y frontend para considerarse funcionalidades terminadas.
+
+## 9. API REST
+
+### Autenticación
+
+```text
+POST /auth/login
+```
+
+### Productos
+
+```text
+GET    /productos
+GET    /productos/{producto_id}
+POST   /productos
+PUT    /productos/{producto_id}
+PUT    /productos/{producto_id}/activar
+DELETE /productos/{producto_id}
+```
+
+### Sucursales
+
+```text
+GET    /sucursales
+GET    /sucursales/{sucursal_id}
+POST   /sucursales
+PUT    /sucursales/{sucursal_id}
+PUT    /sucursales/{sucursal_id}/activar
+DELETE /sucursales/{sucursal_id}
+```
+
+### Usuarios
+
+```text
+GET    /usuarios
+GET    /usuarios/roles
+GET    /usuarios/{usuario_id}
+POST   /usuarios
+PUT    /usuarios/{usuario_id}/perfil
+PUT    /usuarios/{usuario_id}/rol
+PUT    /usuarios/{usuario_id}/estado
+DELETE /usuarios/{usuario_id}
+```
+
+### Inventario
+
+```text
+POST /inventarios/movimientos
+POST /inventarios/movimientos/mi-sucursal
+POST /inventarios/movimientos/ajustar-stock
+
+GET /inventarios/mi-sucursal
+GET /inventarios/movimientos
+GET /inventarios/alerta-stock-bajo
+GET /inventarios/{sucursal_id}
+```
+
+### Proveedores
+
+```text
+GET    /proveedores/
+GET    /proveedores/{proveedor_id}
+POST   /proveedores/
+PUT    /proveedores/{proveedor_id}
+PUT    /proveedores/{proveedor_id}/activar
+DELETE /proveedores/{proveedor_id}
+```
+
+## 10. Seguridad
+
+El sistema implementa:
+
+* Autenticación mediante JWT.
+* Contraseñas almacenadas mediante hash.
+* Control de acceso basado en roles.
+* Protección de operaciones de escritura.
+* Validación de datos mediante Pydantic.
+* Manejo de errores HTTP.
+* Verificación de usuarios activos.
+* Tokens Bearer para solicitudes autenticadas.
+
+Como mejora pendiente, los secretos y credenciales sensibles deben gestionarse mediante variables de entorno y no permanecer directamente en el código fuente.
+
+## 11. Docker
+
+El proyecto utiliza Docker Compose para ejecutar tres servicios:
+
+```text
+db       → PostgreSQL 15
+backend  → FastAPI
+frontend → React + Vite
+```
+
+PostgreSQL utiliza un volumen para conservar la información de la base de datos.
+
+El frontend utiliza Node.js 20 Alpine y ejecuta Vite en modo desarrollo.
+
+## 12. Ejecución
+
+### Requisitos
+
+* Docker
+* Docker Compose
+
+### Iniciar el proyecto
+
+```bash
+docker compose up --build
+```
+
+### Servicios
+
+```text
+Frontend:     http://localhost:5173
+Backend:      http://localhost:8000
+Base de datos: localhost:5433
+```
+
+### Detener el proyecto
+
+```bash
+docker compose down
+```
+
+## 13. Estado actual del proyecto
+
+### Implementado
+
+* Arquitectura frontend, backend y base de datos.
+* Docker Compose.
+* Autenticación JWT.
+* Autorización por roles.
+* CRUD de productos.
+* CRUD de sucursales.
+* Gestión de usuarios.
+* Gestión básica de proveedores.
+* Consulta de inventario.
+* Movimientos de inventario.
+* Ajustes de stock.
+* Historial de movimientos.
+* API de alertas de stock bajo.
+
+### Pendiente de integración completa
+
+* Módulo de compras.
+* Módulo de ventas.
+* Transferencias entre sucursales.
+* Gestión logística y estados de despacho.
+* Dashboard de indicadores.
+* Cálculo integrado del costo promedio ponderado.
+* Manejo completo de unidades de medida y conversiones.
+* Interfaz visual de alertas.
+* Reportes avanzados y exportables.
+
+## 14. Documentación técnica
+
+La documentación contempla:
+
+* Levantamiento de requerimientos.
+* Requerimientos funcionales y no funcionales.
+* Casos de uso.
+* Diagramas de procesos.
+* Diagrama de arquitectura.
+* Modelo entidad-relación.
+* Descripción de API.
+* Seguridad.
+* Uso de inteligencia artificial.
+* Estado de implementación de funcionalidades.
+
+Los documentos se encuentran en:
+
+```text
+/docs
+```
+
+## 15. Uso de inteligencia artificial
+
+Durante el desarrollo se utilizaron GitHub Copilot y ChatGPT como herramientas de apoyo para el análisis de arquitectura, código, API, base de datos, seguridad y documentación.
+
+Las sugerencias generadas fueron revisadas, validadas y ajustadas manualmente antes de incorporarse al proyecto.
+
+La evidencia detallada se encuentra en:
+
+```text
+docs/uso-ia.md
+```
+
+## 16. Historial de desarrollo
+
+El proyecto cuenta con un historial de commits que permite identificar la evolución de sus principales componentes:
+
+1. Inicialización del proyecto.
+2. Configuración de Docker.
+3. Configuración de PostgreSQL y esquema inicial.
+4. Desarrollo del CRUD de productos con FastAPI, SQLAlchemy y Pydantic.
+
+Los cambios posteriores se registrarán mediante commits descriptivos asociados a cada funcionalidad desarrollada.
+
+## 17. Repositorio
+
+Repositorio público:
+
+https://github.com/Daniela0308/sistema-inventario-multisucursal
+
+## 18. Licencia
+
+Proyecto académico desarrollado con fines educativos y de evaluación técnica.
