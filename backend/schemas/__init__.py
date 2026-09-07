@@ -1,7 +1,9 @@
 # schemas/__init__.py
-from .usuario import UsuarioBase, UsuarioCreate, UsuarioOut, UsuarioCambiarRol, UsuarioCambiarSucursal, UsuarioUpdatePerfil
-from .producto import ProductoCreate, ProductoUpdate, ProductoOut
-from .sucursal import SucursalCreate, SucursalUpdate, SucursalOut
-from .auth import LoginRequest, TokenOut
-from .inventario import InventarioOut, MovimientoCreate, MovimientoOut, AjusteInventarioSchema, MovimientoCreateSinSucursal
-from .proveedor import ProveedorOut, ProveedorCreate, ProveedorUpdate
+from .usuario_schema import UsuarioBase, UsuarioCreate, UsuarioOut, UsuarioUpdatePerfil, UsuarioCambiarRol, UsuarioCambiarSucursal
+from .producto_schema import ProductoCreate, ProductoOut, ProductoUpdate
+from .sucursal_schema import SucursalOut, SucursalCreate, SucursalUpdate   
+from .auth_schema import LoginRequest, TokenOut
+from .inventario_schema import InventarioOut, MovimientoCreate, MovimientoOut, AjusteInventarioSchema, MovimientoCreateSinSucursal
+from .proveedor_schema import ProveedorOut, ProveedorCreate, ProveedorUpdate
+from .compra_schema import DetalleCompraIn, DetalleCompraOut, OrdenCompraCreate, OrdenCompraOut
+from .venta_schema import DetalleVentaIn, DetalleVentaOut, VentaCreate, VentaOut

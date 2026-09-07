@@ -31,6 +31,7 @@ def obtener_proveedor(proveedor_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")
     return proveedor
 
+
 # Endpoint para crear un nuevo proveedor
 @router.post("/", response_model=schemas.ProveedorOut)
 def crear_proveedor(
@@ -73,6 +74,7 @@ def actualizar_proveedor(
     db.commit()
     db.refresh(proveedor)
     return proveedor
+
 
 # Endpoint para activar un proveedor (borrado lógico inverso)
 @router.put("/{proveedor_id}/activar", response_model=schemas.ProveedorOut)

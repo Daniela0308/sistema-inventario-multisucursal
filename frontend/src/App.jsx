@@ -6,6 +6,8 @@ import ProductosPage from './pages/ProductosPage'
 import SucursalesPage from './pages/SucursalesPage'
 import InventarioPage from './pages/InventarioPage'
 import UsuariosPage from './pages/UsuariosPage'
+import ComprasPage from './pages/ComprasPage'
+import VentasPage from './pages/VentasPage'
 import './App.css'
 
 /**
@@ -28,6 +30,8 @@ function App() {
       case "sucursales": return <SucursalesPage />
       case "inventario": return <InventarioPage />
       case "usuarios": return <UsuariosPage />
+      case "compras": return <ComprasPage />
+      case "ventas": return <VentasPage />
       default: return <ProductosPage />
     }
   }

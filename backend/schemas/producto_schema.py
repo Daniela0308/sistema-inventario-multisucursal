@@ -33,7 +33,7 @@ class ProductoCreate(BaseModel):
     unidad_medida: str = "unidad"
     stock_minimo: int = 5
     precio_venta: Decimal = Decimal("0.00")
-    activo: bool
+    activo: bool = True
 
 class ProductoUpdate(BaseModel):
     """

@@ -25,7 +25,7 @@ function InventarioPage() {
   useEffect(() => {
     SucursalesAPI.listar(token).then(setSucursales).catch((e) => setMensaje(e.message))
     ProductosAPI.listar(token).then(setProductos).catch((e) => setMensaje(e.message))
-    cargarHistorial()
+    if (esAdmin) cargarHistorial() // el historial de movimientos es exclusivo del admin
   }, [])
 
   // Al entrar, si NO es admin, carga directamente SU inventario
@@ -98,7 +98,7 @@ function InventarioPage() {
 
       if (esAdmin && sucursalSeleccionada) cargarPorSucursal(sucursalSeleccionada)
       if (!esAdmin) cargarMiSucursal()
-      cargarHistorial()
+      if (esAdmin) cargarHistorial()
     } catch (error) {
       setMensaje(error.message)
     }
@@ -210,25 +210,29 @@ function InventarioPage() {
         </div>
       </form>
 
-      {/* ================= SECCIÓN: HISTORIAL COMPLETO ================= */}
-      <h3>Historial de movimientos</h3>
-      <table>
-        <thead>
-          <tr><th>Fecha</th><th>Sucursal</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Motivo</th></tr>
-        </thead>
-        <tbody>
-          {movimientos.map((m) => (
-            <tr key={m.id}>
-              <td>{new Date(m.fecha_registro).toLocaleString()}</td>
-              <td>{nombreSucursal(m.sucursal_id)}</td>
-              <td>{nombreProducto(m.producto_id)}</td>
-              <td>{m.tipo}</td>
-              <td>{m.cantidad}</td>
-              <td>{m.motivo}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* ================= SECCIÓN: HISTORIAL COMPLETO (solo admin) ================= */}
+      {esAdmin && (
+        <>
+          <h3>Historial de movimientos</h3>
+          <table>
+            <thead>
+              <tr><th>Fecha</th><th>Sucursal</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Motivo</th></tr>
+            </thead>
+            <tbody>
+              {movimientos.map((m) => (
+                <tr key={m.id}>
+                  <td>{new Date(m.fecha_registro).toLocaleString()}</td>
+                  <td>{nombreSucursal(m.sucursal_id)}</td>
+                  <td>{nombreProducto(m.producto_id)}</td>
+                  <td>{m.tipo}</td>
+                  <td>{m.cantidad}</td>
+                  <td>{m.motivo}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   )
 }

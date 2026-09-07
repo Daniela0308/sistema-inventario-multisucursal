@@ -1,14 +1,9 @@
-"""
-services.py
-===========
-Logica de negocio reutilizable entre varios routers. Un router recibe
-la peticion HTTP y responde; la LOGICA (calculos, reglas, validaciones
-compartidas) vive aqui, para no repetirla en cada archivo de routers/.
-"""
+""" inventario.py - Logica de negocio relacionada con el inventario."""
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from decimal import Decimal
 import models
 
 
@@ -39,6 +34,7 @@ def registrar_movimiento(
     usuario_id: int,
     motivo: str | None = None,
     referencia: str | None = None,
+    costo_unitario: Decimal | None = None,
 ) -> models.MovimientoInventario: #Es una indicación de qué tipo de objeto debería devolver la función.
     """
     UNICO punto de entrada para cambiar stock en todo el sistema.
@@ -66,7 +62,18 @@ def registrar_movimiento(
 
     # Actualizamos el stock del inventario según el tipo de movimiento
     if tipo in TIPOS_INGRESO:
+        # Solo recalculamos el costo promedio si quien llama a esta
+        # función SI conoce el precio de esta entrada (típicamente,
+        # una compra). En una devolución/ajuste/transferencia, se manda
+        # costo_unitario=None y el costo_promedio no se toca.
+        if costo_unitario is not None:
+            valor_actual = inventario.cantidad * inventario.costo_promedio
+            valor_entrante = cantidad * costo_unitario
+            nueva_cantidad_total = inventario.cantidad + cantidad
+            inventario.costo_promedio = (valor_actual + valor_entrante) / nueva_cantidad_total
+
         inventario.cantidad += cantidad
+
     elif tipo in TIPOS_RETIRO:
         if inventario.cantidad < cantidad:
             raise HTTPException(
@@ -89,6 +96,7 @@ def registrar_movimiento(
     db.flush() # permite que SQLAlchemy sincronice ese objeto con PostgreSQL dentro de la transacción actual.
     return movimiento
 
+
 # Función para ajustar el inventario de un producto en una sucursal específica.
 def ajustar_inventario_sucursal(
         db: Session, 
@@ -98,6 +106,7 @@ def ajustar_inventario_sucursal(
         cantidad_real: int, 
         motivo: str
     ):
+        """ Ajusta el inventario de un producto en una sucursal específica. """
         # 1. Obtener item de inventario
         item_inventario = db.query(models.Inventario).filter(
             models.Inventario.sucursal_id == sucursal_id,
@@ -145,6 +154,7 @@ def ajustar_inventario_sucursal(
             "cantidad_nueva": item_inventario.cantidad,
             "diferencia_aplicada": diferencia
         }
+
 
 # Función alerta de stock bajo
 def alerta_stock_bajo(

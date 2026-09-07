@@ -78,3 +78,32 @@ export const InventarioAPI = {
   ajustarStock: (token, datos) =>
     apiRequest("/inventarios/movimientos/ajustar-stock", token, { method: "POST", body: JSON.stringify(datos) }),
 };
+
+// ---------------------------------------------------------------------
+// PROVEEDORES
+// ---------------------------------------------------------------------
+export const ProveedoresAPI = {
+  listar: (token) => apiRequest("/proveedores", token),
+  crear: (token, datos) =>
+    apiRequest("/proveedores", token, { method: "POST", body: JSON.stringify(datos) }),
+};
+
+// ---------------------------------------------------------------------
+// COMPRAS
+// ---------------------------------------------------------------------
+export const ComprasAPI = {
+  listar: (token) => apiRequest("/compras", token),
+  crear: (token, datos) =>
+    apiRequest("/compras", token, { method: "POST", body: JSON.stringify(datos) }),
+  confirmar: (token, id) => apiRequest(`/compras/${id}/confirmar`, token, { method: "POST" }),
+  recibir: (token, id) => apiRequest(`/compras/${id}/recibir`, token, { method: "POST" }),
+};
+
+// ---------------------------------------------------------------------
+// VENTAS
+// ---------------------------------------------------------------------
+export const VentasAPI = {
+  listar: (token) => apiRequest("/ventas", token),
+  crear: (token, datos) =>
+    apiRequest("/ventas", token, { method: "POST", body: JSON.stringify(datos) }),
+};

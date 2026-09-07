@@ -12,6 +12,8 @@ function Navbar({ paginaActual, onCambiarPagina }) {
     { id: "productos", label: "Productos" },
     { id: "sucursales", label: "Sucursales" },
     { id: "inventario", label: "Inventario" },
+    { id: "compras", label: "Compras" },
+    { id: "ventas", label: "Ventas" },
     { id: "usuarios", label: "Usuarios" },
   ]
 

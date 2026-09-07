@@ -9,11 +9,29 @@ Cómo correrlo (con los contenedores levantados):
 """
 import auth
 from database import SessionLocal
-from models import Producto, Sucursal, Usuario, RolUsuario, Proveedor
+from models import (
+    Producto, Sucursal, Usuario, RolUsuario, Proveedor,
+    Inventario, MovimientoInventario, OrdenCompra, DetalleCompra, Venta, DetalleVenta,
+)
 
 db = SessionLocal()
 
-""" 
+# -------------------------------------------------------------------------
+# 0. LIMPIEZA (en orden inverso a las llaves foráneas, para poder rerunear)
+# -------------------------------------------------------------------------
+print("Borrando datos existentes...")
+db.query(DetalleVenta).delete()
+db.query(Venta).delete()
+db.query(DetalleCompra).delete()
+db.query(OrdenCompra).delete()
+db.query(MovimientoInventario).delete()
+db.query(Inventario).delete()
+db.query(Usuario).delete()
+db.query(Producto).delete()
+db.query(Proveedor).delete()
+db.query(Sucursal).delete()
+db.commit()
+
 # -------------------------------------------------------------------------
 # 1. CREACIÓN DE SUCURSALES Y PROVEEDORES
 # -------------------------------------------------------------------------
@@ -83,15 +101,11 @@ productos = [
 ]
 
 db.add_all(productos)
-db.commit() """
+db.commit()
 
 # -------------------------------------------------------------------------
 # 3. CREACIÓN DE USUARIOS
 # -------------------------------------------------------------------------
-#print("Borrando usuarios existentes...")
-#db.query(Usuario).delete()
-
-
 print("Creando usuarios de prueba...")
 usuarios = [
     Usuario(
@@ -106,14 +120,14 @@ usuarios = [
         email="gerente@optiplant.com",
         password_hash=auth.hash_password("Gerente123!"),
         rol=RolUsuario.GERENTE_SUCURSAL,
-        sucursal_id= db.query(Sucursal).filter(Sucursal.nombre == "Sucursal Central").first().id,  # reutiliza la variable "central" que ya creaste arriba
+        sucursal_id=central.id,  # reutiliza la variable "central" que ya creaste arriba
     ),
     Usuario(
         nombre="Operador Central",
         email="operador@optiplant.com",
         password_hash=auth.hash_password("Operador123!"),
         rol=RolUsuario.OPERADOR_INVENTARIO,
-        sucursal_id= db.query(Sucursal).filter(Sucursal.nombre == "Sucursal Central").first().id,
+        sucursal_id=central.id,
     ),
 ]
 db.add_all(usuarios)

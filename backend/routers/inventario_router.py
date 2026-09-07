@@ -2,7 +2,7 @@ import schemas
 import models
 import auth
 
-import services
+from services import inventario_service as inventario
 
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
@@ -26,11 +26,22 @@ def registrar_movimiento_endpoint(
     """
     Registra un movimiento de inventario (ingreso o retiro) y actualiza el stock.
     """
+    # Igual que en ventas/compras: si NO es admin_general, se ignora
+    # datos.sucursal_id y se fuerza la sucursal del usuario autenticado.
+    if usuario_actual.rol == models.RolUsuario.ADMIN_GENERAL:
+        if not datos.sucursal_id:
+            raise HTTPException(400, "El administrador debe especificar la sucursal")
+        sucursal_id = datos.sucursal_id
+    else:
+        if not usuario_actual.sucursal_id:
+            raise HTTPException(400, "Tu usuario no tiene una sucursal asignada")
+        sucursal_id = usuario_actual.sucursal_id  # se ignora datos.sucursal_id por completo
+
     # Llamamos a la función de servicio para registrar el movimiento
-    movimiento = services.registrar_movimiento(
+    movimiento = inventario.registrar_movimiento(
         db,
         producto_id=datos.producto_id,
-        sucursal_id=datos.sucursal_id,
+        sucursal_id=sucursal_id,
         tipo=datos.tipo,
         cantidad=datos.cantidad,
         usuario_id=usuario_actual.id,
@@ -50,7 +61,6 @@ def registrar_movimiento_mi_sucursal_endpoint(
     usuario_actual: models.Usuario = Depends(auth.get_current_user)
 ):
     """ Registra un movimiento de inventario directamente en la sucursal del usuario logueado. 
-    
     Si el usuario no tiene una sucursal asignada y no es ADMIN_GENERAL, se lanza una excepción HTTP 400.
     """
 
@@ -59,7 +69,7 @@ def registrar_movimiento_mi_sucursal_endpoint(
         raise HTTPException(
             400, f"El usuario no tiene una sucursal asignada."
         )
-    movimiento = services.registrar_movimiento(
+    movimiento = inventario.registrar_movimiento(
         db,
         producto_id=datos.producto_id,
         sucursal_id=sucursal_id,
@@ -107,7 +117,7 @@ def ajustar_inventario_sucursal_endpoint(
         )
 
     # Delegar toda la regla de negocio al servicio
-    ajuste = services.ajustar_inventario_sucursal(
+    ajuste = inventario.ajustar_inventario_sucursal(
         db=db,
         sucursal_id=sucursal_id,
         usuario_id=usuario_actual.id,
@@ -143,15 +153,15 @@ def obtener_inventario_mi_sucursal(
     return inventario
 
 
-# Endpoint para listar todos los movimientos de inventario, opcionalmente filtrados por sucursal
+# Endpoint para listar todos los movimientos de inventario
 @router.get("/movimientos", response_model=List[schemas.MovimientoOut])
 def listar_movimientos(
     db: Session = Depends(get_db),
-    usuario_actual: models.Usuario = Depends(auth.get_current_user),
+    usuario_actual = Depends(auth.requerir_roles(models.RolUsuario.ADMIN_GENERAL)),
 ):
-    """ Retorna todos los movimientos de inventario, opcionalmente filtrados por sucursal."""
-    query = db.query(models.MovimientoInventario).order_by(models.MovimientoInventario.fecha_registro.desc()).all()
-    return query
+    """ Retorna los movimientos de inventario. Exclusivo del admin_general: gerentes y operadores NO tienen acceso al historial de movimientos."""
+    query = db.query(models.MovimientoInventario)
+    return query.order_by(models.MovimientoInventario.fecha_registro.desc()).all()
 
 
 # Endpoint para alertar sobre stock bajo
@@ -167,7 +177,7 @@ def alerta_stock_bajo_endpoint(
             400, f"El usuario no tiene una sucursal asignada."
         )
 
-    productos_bajo_stock = services.alerta_stock_bajo(db=db, sucursal_id=sucursal_id)
+    productos_bajo_stock = inventario.alerta_stock_bajo(db=db, sucursal_id=sucursal_id)
     return productos_bajo_stock
 
 
@@ -179,7 +189,10 @@ def obtener_inventario(
     usuario_actual: models.Usuario = Depends(auth.get_current_user)
 ):
 
-    """Retorna el inventario de una sucursal específica."""
+    """Retorna el inventario (stock) de una sucursal específica."""
+    # Cualquier rol puede consultar el stock de CUALQUIER sucursal; lo
+    # restringido a solo admin_general es el historial de movimientos,
+    # no el inventario en sí.
     inventario = (
         db.query(models.Inventario)
         .filter(models.Inventario.sucursal_id == sucursal_id)

@@ -36,3 +36,12 @@ button:hover { background: #15803d; }
 
 .mensaje-error { background: #fee2e2; color: #dc2626; padding: 10px; border-radius: 6px; margin-bottom: 14px; font-size: 13px; }
 .mensaje-info { background: #dcfce7; color: #15803d; padding: 10px; border-radius: 6px; margin-bottom: 14px; font-size: 13px; }
+
+/* ---------- Compras / Ventas ---------- */
+.subformulario { background: #f4f4f5; padding: 10px; border-radius: 8px; margin: -4px 0 12px; }
+.fila-final { align-items: center; justify-content: space-between; }
+.ayuda { font-size: 12px; color: #71717a; }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #e4e4e7; color: #18181b; }
+.badge-borrador { background: #fef9c3; color: #a16207; }
+.badge-confirmada { background: #dbeafe; color: #1d4ed8; }
+.badge-cancelada { background: #fee2e2; color: #dc2626; }

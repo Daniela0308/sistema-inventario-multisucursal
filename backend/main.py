@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import producto, sucursal, usuario , auth, inventario, proveedor
+from routers import (
+    producto_router, sucursal_router, usuario_router, auth_router,
+    inventario_router, proveedor_router, compra_router, venta_router,
+)
 
 #Creamos la instancia de FastAPI
 app = FastAPI(title="Sistema de Inventario Multi-Sucursal")
@@ -28,9 +31,11 @@ def home():
     return {"mensaje": "¡API de Inventario OptiPlant funcionando correctamente!"}
 
 # Registramos el router de productos
-app.include_router(producto.router)
-app.include_router(sucursal.router)
-app.include_router(usuario.router)
-app.include_router(auth.router)
-app.include_router(inventario.router)
-app.include_router(proveedor.router)
+app.include_router(producto_router.router)
+app.include_router(sucursal_router.router)
+app.include_router(usuario_router.router)
+app.include_router(auth_router.router)
+app.include_router(inventario_router.router)
+app.include_router(proveedor_router.router)
+app.include_router(compra_router.router)
+app.include_router(venta_router.router)

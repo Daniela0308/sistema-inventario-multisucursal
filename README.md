@@ -19,33 +19,38 @@ Actualmente el sistema cuenta con:
 * Gestión de productos.
 * Gestión de sucursales.
 * Gestión básica de proveedores.
-* Consulta de inventario por sucursal.
+* Consulta de inventario por sucursal (cualquier rol puede consultar el stock de cualquier sucursal).
 * Registro de entradas y salidas de inventario.
 * Ajustes de inventario.
-* Historial de movimientos.
+* Historial de movimientos (exclusivo del administrador general).
 * Alertas de stock bajo mediante API.
-* Control de permisos según el rol del usuario.
+* Módulo de compras: creación de órdenes (borrador), confirmación, recepción con actualización automática de inventario y costo promedio.
+* Módulo de ventas: registro de ventas con descuento inmediato de stock y validación de disponibilidad.
+* Alta rápida de proveedores y productos desde el propio flujo de compras/ventas (sin salir de la pantalla).
+* Control de permisos según el rol del usuario, incluyendo validación de sucursal en el backend (un usuario no-admin no puede operar ni ver movimientos de otra sucursal aunque intente manipular la petición).
 
 ## 4. Roles del sistema
 
 ### Administrador general
 
-* Gestionar productos.
-* Gestionar sucursales.
-* Gestionar usuarios y roles.
-* Gestionar proveedores.
-* Consultar información general.
+* Gestionar productos, sucursales, usuarios y proveedores.
+* Visibilidad total: cualquier sucursal, cualquier movimiento, cualquier compra o venta.
+* Único rol que puede consultar el historial de movimientos de inventario.
+* Confirmar y recibir órdenes de compra de cualquier sucursal.
 
 ### Gerente de sucursal
 
-* Consultar información de su sucursal.
-* Supervisar inventario y movimientos según sus permisos.
+* Supervisa las operaciones de **su propia sucursal** (compras, ventas, ajustes quedan forzados a su sucursal aunque el cliente intente mandar otra).
+* Aprueba (confirma) y recibe órdenes de compra, pero solo las de su propia sucursal.
+* Puede **consultar el inventario (stock) de cualquier sucursal** de la red, no solo la suya.
+* No tiene acceso al historial de movimientos de inventario (exclusivo del admin).
 
 ### Operador de inventario
 
-* Consultar inventario.
-* Registrar movimientos de inventario.
-* Realizar operaciones autorizadas.
+* Realiza ingresos y retiros de inventario, solicita ajustes y registra ventas/compras, siempre dentro de **su propia sucursal**.
+* Puede **consultar el inventario (stock) de cualquier sucursal** de la red, no solo la suya.
+* No tiene acceso al historial de movimientos de inventario (exclusivo del admin).
+* No puede confirmar ni recibir órdenes de compra (reservado a gerente/admin).
 
 ## 5. Arquitectura
 
@@ -110,29 +115,49 @@ sistema-inventario-multisucursal/
 │
 ├── backend/
 │   ├── routers/
-│   │   ├── auth.py
-│   │   ├── producto.py
-│   │   ├── sucursal.py
-│   │   ├── usuario.py
-│   │   ├── inventario.py
-│   │   └── proveedor.py
+│   │   ├── auth_router.py
+│   │   ├── producto_router.py
+│   │   ├── sucursal_router.py
+│   │   ├── usuario_router.py
+│   │   ├── inventario_router.py
+│   │   ├── proveedor_router.py
+│   │   ├── compra_router.py
+│   │   └── venta_router.py
 │   │
 │   ├── schemas/
+│   │   ├── auth_schema.py, producto_schema.py, sucursal_schema.py, usuario_schema.py
+│   │   └── inventario_schema.py, proveedor_schema.py, compra_schema.py, venta_schema.py
+│   │
+│   ├── services/
+│   │   ├── inventario_service.py
+│   │   ├── compra_service.py
+│   │   └── venta_service.py
+│   │
+│   ├── models/
+│   │   ├── __init__.py  (re-exporta todas las clases)
+│   │   ├── sucursal.py, usuario.py, producto.py, inventario.py
+│   │   └── proveedor.py, compra.py, venta.py, transferencia.py
+│   │
+│   ├── auth/
+│   │   └── security.py  (hash de contraseñas, JWT, dependencias de autorización)
+│   │
 │   ├── main.py
-│   ├── models.py
 │   ├── database.py
-│   ├── security.py
-│   ├── services.py
 │   └── seed.py
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
+│   │   │   └── Navbar.jsx
 │   │   ├── pages/
+│   │   │   ├── LoginPage.jsx, ProductosPage.jsx, SucursalesPage.jsx
+│   │   │   ├── UsuariosPage.jsx, InventarioPage.jsx
+│   │   │   └── ComprasPage.jsx, VentasPage.jsx
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
 │   │   ├── App.jsx
 │   │   ├── api.js
-│   │   ├── main.jsx
-│   │   └── AuthContext.jsx
+│   │   └── main.jsx
 │   ├── Dockerfile
 │   └── package.json
 │
@@ -140,11 +165,14 @@ sistema-inventario-multisucursal/
 │   └── init.sql
 │
 ├── docs/
-│   └── uso-ia.md
+│   ├── uso-ia.md
+│   └── estado-proyecto.md
 │
 ├── docker-compose.yml
 └── README.md
 ```
+
+> Nota: `schemas/`, `routers/` y `services/` usan el sufijo de capa (`_schema`, `_router`, `_service`) en el nombre de archivo para poder distinguirlos de un vistazo cuando hay varias pestañas abiertas en el editor con el mismo nombre base (ej. `compra_router.py` vs `compra_service.py`).
 
 ## 8. Base de datos
 
@@ -163,7 +191,7 @@ La base de datos utiliza PostgreSQL y contempla entidades para:
 * Transferencias.
 * Alertas.
 
-Las entidades de compras, ventas y transferencias están contempladas en el esquema inicial, pero requieren integración completa con backend y frontend para considerarse funcionalidades terminadas.
+Las entidades de compras y ventas ya cuentan con integración completa (backend + frontend). Transferencias entre sucursales solo tiene el modelo de datos (`models/transferencia.py`); todavía no tiene router, servicio ni pantalla.
 
 ## 9. API REST
 
@@ -211,14 +239,14 @@ DELETE /usuarios/{usuario_id}
 ### Inventario
 
 ```text
-POST /inventarios/movimientos
+POST /inventarios/movimientos                  (admin: cualquier sucursal / resto: forzado a la propia)
 POST /inventarios/movimientos/mi-sucursal
 POST /inventarios/movimientos/ajustar-stock
 
 GET /inventarios/mi-sucursal
-GET /inventarios/movimientos
+GET /inventarios/movimientos                    (exclusivo admin_general)
 GET /inventarios/alerta-stock-bajo
-GET /inventarios/{sucursal_id}
+GET /inventarios/{sucursal_id}                  (cualquier rol, cualquier sucursal)
 ```
 
 ### Proveedores
@@ -230,6 +258,24 @@ POST   /proveedores/
 PUT    /proveedores/{proveedor_id}
 PUT    /proveedores/{proveedor_id}/activar
 DELETE /proveedores/{proveedor_id}
+```
+
+### Compras
+
+```text
+POST /compras                        (crea orden en estado BORRADOR; sucursal forzada si no es admin)
+POST /compras/{orden_id}/confirmar   (admin o gerente de esa sucursal)
+POST /compras/{orden_id}/recibir     (admin o gerente de esa sucursal; actualiza inventario y costo promedio)
+GET  /compras                        (admin ve todas; gerente/operador solo las de su sucursal)
+GET  /compras/{orden_id}
+```
+
+### Ventas
+
+```text
+POST /ventas       (descuenta stock de inmediato; sucursal forzada si no es admin)
+GET  /ventas       (admin ve todas; gerente/operador solo las de su sucursal)
+GET  /ventas/{venta_id}
 ```
 
 ## 10. Seguridad
@@ -244,6 +290,8 @@ El sistema implementa:
 * Manejo de errores HTTP.
 * Verificación de usuarios activos.
 * Tokens Bearer para solicitudes autenticadas.
+* Validación de sucursal en el backend para operaciones de compras, ventas y movimientos de inventario: un usuario no-admin no puede leer ni escribir datos de una sucursal distinta a la suya manipulando la petición directamente (ej. Postman o la consola del navegador). El `sucursal_id` que manda el cliente se ignora y se reemplaza por la sucursal real del usuario autenticado cuando no es `admin_general`.
+* El historial de movimientos de inventario es visible únicamente para `admin_general`.
 
 Como mejora pendiente, los secretos y credenciales sensibles deben gestionarse mediante variables de entorno y no permanecer directamente en el código fuente.
 
@@ -295,27 +343,28 @@ docker compose down
 * Arquitectura frontend, backend y base de datos.
 * Docker Compose.
 * Autenticación JWT.
-* Autorización por roles.
+* Autorización por roles, con validación de sucursal en el backend (no solo en el frontend).
 * CRUD de productos.
 * CRUD de sucursales.
 * Gestión de usuarios.
 * Gestión básica de proveedores.
-* Consulta de inventario.
-* Movimientos de inventario.
+* Consulta de inventario (stock) de cualquier sucursal, para cualquier rol.
+* Movimientos de inventario (visibles solo para admin_general).
 * Ajustes de stock.
 * Historial de movimientos.
 * API de alertas de stock bajo.
+* Módulo de compras completo: alta de orden (borrador) con carrito de líneas, alta rápida de proveedor/producto inline, confirmación y recepción con actualización de inventario y costo promedio.
+* Módulo de ventas completo: registro con descuento inmediato de stock, precio de catálogo u override, validación de disponibilidad previa.
+* Backend reorganizado: `models.py` dividido en paquete `models/` por dominio, y `schemas/`, `routers/`, `services/` con sufijo de capa para evitar archivos duplicados en el editor.
 
 ### Pendiente de integración completa
 
-* Módulo de compras.
-* Módulo de ventas.
-* Transferencias entre sucursales.
+* Transferencias entre sucursales (el modelo `Transferencia` ya existe en `models/transferencia.py`, falta su router, servicio y pantalla).
 * Gestión logística y estados de despacho.
 * Dashboard de indicadores.
-* Cálculo integrado del costo promedio ponderado.
+* Cálculo integrado del costo promedio ponderado en todos los flujos (compras ya lo aplica).
 * Manejo completo de unidades de medida y conversiones.
-* Interfaz visual de alertas.
+* Interfaz visual de alertas (hoy solo expuesta vía API).
 * Reportes avanzados y exportables.
 
 ## 14. Documentación técnica
