@@ -3,9 +3,12 @@ import { useAuth } from '../context/AuthContext'
 import { InventarioAPI, SucursalesAPI, ProductosAPI } from '../api'
 
 function InventarioPage() {
+
+  // Contexto de autenticación y rol del usuario actual.
   const { usuario, token } = useAuth()
   const esAdmin = usuario.rol === "admin_general"
 
+  // Estados locales para manejar sucursales, productos, inventario, movimientos y mensajes.
   const [sucursales, setSucursales] = useState([])
   const [productos, setProductos] = useState([])
   const [inventario, setInventario] = useState([])
@@ -17,11 +20,11 @@ function InventarioPage() {
   // "viendoOtra" para consultar cualquier otra (requisito 2.1).
   const [sucursalSeleccionada, setSucursalSeleccionada] = useState("")
   const [viendoOtra, setViendoOtra] = useState(false)
-
+  // Estado para manejar el formulario de registro de movimientos.
   const [form, setForm] = useState({
     sucursal_id: "", producto_id: "", tipo: "ingreso_ajuste", cantidad: "", motivo: "",
   })
-
+  // Efectos para cargar datos iniciales: sucursales, productos e inventario según el rol del usuario.
   useEffect(() => {
     SucursalesAPI.listar(token).then(setSucursales).catch((e) => setMensaje(e.message))
     ProductosAPI.listar(token).then(setProductos).catch((e) => setMensaje(e.message))
@@ -39,7 +42,7 @@ function InventarioPage() {
   useEffect(() => {
     if (sucursalSeleccionada) cargarPorSucursal(sucursalSeleccionada)
   }, [sucursalSeleccionada])
-
+  // Funciones para cargar inventario según la sucursal seleccionada o la sucursal del usuario, y para cargar el historial de movimientos (solo admin).
   async function cargarMiSucursal() {
     try {
       setInventario(await InventarioAPI.miSucursal(token))
@@ -47,7 +50,7 @@ function InventarioPage() {
       setMensaje(error.message)
     }
   }
-
+  // Función para cargar inventario de la sucursal del usuario autenticado.
   async function cargarPorSucursal(id) {
     try {
       setInventario(await InventarioAPI.porSucursal(token, id))
@@ -55,7 +58,7 @@ function InventarioPage() {
       setMensaje(error.message)
     }
   }
-
+  // Función para cargar el historial de movimientos (solo admin).
   async function cargarHistorial() {
     try {
       setMovimientos(await InventarioAPI.movimientos(token))
@@ -63,7 +66,7 @@ function InventarioPage() {
       setMensaje(error.message)
     }
   }
-
+  // Función auxiliar para obtener el nombre de un producto a partir de su ID.
   function nombreProducto(id) {
     const p = productos.find((p) => p.id === id)
     return p ? p.nombre : id
@@ -73,9 +76,11 @@ function InventarioPage() {
     const s = sucursales.find((s) => s.id === id)
     return s ? s.nombre : id
   }
+  // Función para registrar un nuevo movimiento de inventario, diferenciando entre admin y no-admin.
 
   async function registrarMovimiento(evento) {
     evento.preventDefault()
+    // Prepara los datos base del movimiento de inventario.
     try {
       const datosBase = {
         producto_id: Number(form.producto_id),
@@ -83,7 +88,7 @@ function InventarioPage() {
         cantidad: Number(form.cantidad),
         motivo: form.motivo,
       }
-
+      // Si es admin, se añade la sucursal seleccionada al paquete de datos.
       if (esAdmin) {
         await InventarioAPI.registrarMovimiento(token, {
           ...datosBase,
@@ -92,10 +97,10 @@ function InventarioPage() {
       } else {
         await InventarioAPI.registrarMovimientoMiSucursal(token, datosBase)
       }
-
+      // Actualiza el inventario y el historial según el rol del usuario y la sucursal seleccionada.
       setMensaje("Movimiento registrado correctamente.")
       setForm({ sucursal_id: "", producto_id: "", tipo: "ingreso_ajuste", cantidad: "", motivo: "" })
-
+      // Refresca la vista del inventario y el historial de movimientos según el rol y la sucursal seleccionada.
       if (esAdmin && sucursalSeleccionada) cargarPorSucursal(sucursalSeleccionada)
       if (!esAdmin) cargarMiSucursal()
       if (esAdmin) cargarHistorial()

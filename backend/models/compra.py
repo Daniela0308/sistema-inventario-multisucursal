@@ -34,12 +34,12 @@ class OrdenCompra(Base):
     plazo_pago_dias = Column(Integer, nullable=False, default=0)
     fecha_registro = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    proveedor = relationship("Proveedor", back_populates="ordenes_compra")
-    sucursal = relationship("Sucursal", back_populates="ordenes_compra")
-    usuario = relationship("Usuario", back_populates="ordenes_compra")
+    proveedor = relationship("Proveedor", back_populates="ordenes_compra") # uno a muchos: un proveedor puede tener muchas órdenes de compra
+    sucursal = relationship("Sucursal", back_populates="ordenes_compra") # uno a muchos: una sucursal puede tener muchas órdenes de compra
+    usuario = relationship("Usuario", back_populates="ordenes_compra") # uno a muchos: un usuario puede tener muchas órdenes de compra
     # cascade="all, delete-orphan": si borras la orden desde el ORM,
     # sus detalles se borran con ella automáticamente.
-    detalles = relationship("DetalleCompra", back_populates="orden", cascade="all, delete-orphan")
+    detalles = relationship("DetalleCompra", back_populates="orden", cascade="all, delete-orphan") # uno a muchos: una orden de compra puede tener muchos detalles
 
 
 # Se usa en la relación con OrdenCompra a través de la columna orden_compra_id.
@@ -53,5 +53,5 @@ class DetalleCompra(Base):
     precio_unitario = Column(Numeric(12, 2), nullable=False)
     descuento_pct = Column(Numeric(5, 2), nullable=False, default=0)
 
-    orden = relationship("OrdenCompra", back_populates="detalles")
-    producto = relationship("Producto", back_populates="detalles_compra")
+    orden = relationship("OrdenCompra", back_populates="detalles") # uno a muchos: una orden de compra puede tener muchos detalles
+    producto = relationship("Producto", back_populates="detalles_compra") # uno a muchos: un producto puede tener muchos detalles de compra

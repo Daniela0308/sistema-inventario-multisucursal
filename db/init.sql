@@ -149,6 +149,7 @@ CREATE TYPE estado_transferencia AS ENUM (
     'solicitada', 'en_preparacion', 'en_transito', 'recibida', 'recibida_parcial', 'rechazada'
 );
 CREATE TYPE urgencia_transferencia AS ENUM ('baja', 'media', 'alta');
+CREATE TYPE tratamiento_faltante AS ENUM ('reenvio', 'ajuste', 'reclamacion');
 
 CREATE TABLE transferencias (
     id                          SERIAL PRIMARY KEY,
@@ -166,7 +167,10 @@ CREATE TABLE transferencias (
     fecha_envio                  TIMESTAMP,
     fecha_recepcion              TIMESTAMP,
     usuario_solicita_id          INTEGER NOT NULL REFERENCES usuarios(id),
-    observaciones                VARCHAR(500)
+    observaciones                VARCHAR(500),
+    cantidad_faltante            INTEGER,
+    tratamiento_faltante         tratamiento_faltante,
+    observaciones_recepcion      VARCHAR(500)
 );
 
 -- ---------------------------------------------------------------------

@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 
 from database import Base
 
-
+# Modelo de producto.
 class Producto(Base):
     __tablename__ = 'productos'
 
@@ -24,3 +24,4 @@ class Producto(Base):
     detalles_compra = relationship("DetalleCompra", back_populates="producto") # uno a muchos: un producto puede tener muchos detalles de compra
     detalles_venta = relationship("DetalleVenta", back_populates="producto") # uno a muchos: un producto puede tener muchos detalles de venta
     transferencias = relationship("Transferencia", back_populates="producto") # uno a muchos: un producto puede tener muchas transferencias entre sucursales
+    alertas = relationship("Alerta", back_populates="producto") # uno a muchos: un producto puede tener muchas alertas

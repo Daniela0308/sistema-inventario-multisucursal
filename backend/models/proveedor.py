@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 
 from database import Base
 
-
+# Modelo de proveedor.
 class Proveedor(Base):
     __tablename__ = 'proveedores'
 
@@ -17,4 +17,4 @@ class Proveedor(Base):
     activo = Column(Boolean, nullable=False, default=True)
     creado_en = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    ordenes_compra = relationship("OrdenCompra", back_populates="proveedor")
+    ordenes_compra = relationship("OrdenCompra", back_populates="proveedor") # uno a muchos: un proveedor puede tener muchas órdenes de compra

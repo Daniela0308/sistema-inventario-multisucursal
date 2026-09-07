@@ -33,6 +33,7 @@ def registrar_movimiento_endpoint(
             raise HTTPException(400, "El administrador debe especificar la sucursal")
         sucursal_id = datos.sucursal_id
     else:
+        # Para usuarios que no son ADMIN_GENERAL, se fuerza la sucursal del usuario autenticado.
         if not usuario_actual.sucursal_id:
             raise HTTPException(400, "Tu usuario no tiene una sucursal asignada")
         sucursal_id = usuario_actual.sucursal_id  # se ignora datos.sucursal_id por completo
@@ -65,7 +66,7 @@ def registrar_movimiento_mi_sucursal_endpoint(
     """
 
     sucursal_id = usuario_actual.sucursal_id
-    if not sucursal_id and usuario_actual.rol != "ADMIN_GENERAL":
+    if not sucursal_id and usuario_actual.rol != models.RolUsuario.ADMIN_GENERAL:
         raise HTTPException(
             400, f"El usuario no tiene una sucursal asignada."
         )
@@ -97,7 +98,7 @@ def ajustar_inventario_sucursal_endpoint(
     - OTROS ROLES: Solo pueden ajustar la sucursal a la que están asignados.
     """
     # Resolver la sucursal del usuario
-    if usuario_actual.rol == "ADMIN_GENERAL":
+    if usuario_actual.rol == models.RolUsuario.ADMIN_GENERAL:
         # Si el usuario es ADMIN_GENERAL, se toma la sucursal_id del payload
         if not datos.sucursal_id:
             raise HTTPException(
@@ -140,8 +141,10 @@ def obtener_inventario_mi_sucursal(
 
     Si el usuario no tiene una sucursal asignada y no es ADMIN_GENERAL, se lanza una excepción HTTP 400.
     """
+    # Para usuarios que no son ADMIN_GENERAL, se fuerza la sucursal del usuario autenticado.
     sucursal_id = usuario_actual.sucursal_id
-    if not sucursal_id and usuario_actual.rol != "ADMIN_GENERAL":
+    # Validar que el usuario tenga una sucursal asignada si no es ADMIN_GENERAL
+    if not sucursal_id and usuario_actual.rol != models.RolUsuario.ADMIN_GENERAL:
         raise HTTPException(
             400, f"El usuario no tiene una sucursal asignada."
         )
@@ -172,7 +175,7 @@ def alerta_stock_bajo_endpoint(
 ):
     """ Retorna los productos cuyo stock en la sucursal del usuario logueado está por debajo del umbral definido. """
     sucursal_id = usuario_actual.sucursal_id
-    if not sucursal_id and usuario_actual.rol != "ADMIN_GENERAL":
+    if not sucursal_id and usuario_actual.rol != models.RolUsuario.ADMIN_GENERAL:
         raise HTTPException(
             400, f"El usuario no tiene una sucursal asignada."
         )

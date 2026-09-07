@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 
 class InventarioOut(BaseModel):
-    """Forma del JSON que la API DEVUELVE (GET, y tambien la respuesta de POST/PUT)."""
+    """Esquema para la representación de inventario que la API DEVUELVE (GET, y tambien la respuesta de POST/PUT)."""
     id: int
     producto_id: int
     sucursal_id: int
@@ -18,7 +18,7 @@ class InventarioOut(BaseModel):
         from_attributes = True
 
 class MovimientoCreate(BaseModel):
-    """Forma del JSON que la API RECIBE (POST) para registrar un movimiento de inventario."""
+    """Esquema para registrar un movimiento de inventario (POST)."""
     producto_id: int
     sucursal_id: int
     tipo: models.TipoMovimiento
@@ -27,7 +27,7 @@ class MovimientoCreate(BaseModel):
     referencia: Optional[str] = None
 
 class MovimientoOut(BaseModel):
-    """Forma del JSON que la API DEVUELVE (GET, y tambien la respuesta de POST) para un movimiento de inventario."""
+    """Esquema para la representación de un movimiento de inventario que la API DEVUELVE (GET, y tambien la respuesta de POST)."""
     id: int
     producto_id: int
     sucursal_id: int
@@ -41,8 +41,9 @@ class MovimientoOut(BaseModel):
     class Config:
         from_attributes = True
 
-# Esquema para el ajuste
+# Esquema para el ajuste de inventario
 class AjusteInventarioSchema(BaseModel):
+    """Esquema para el ajuste de inventario."""
     producto_id: int
     cantidad_real: int  # La cantidad correcta que realmente HAY en la estantería
     motivo: str         # Ej: "Corrección por error de digitación anterior"
@@ -50,7 +51,7 @@ class AjusteInventarioSchema(BaseModel):
 
 # Esquema para registrar un movimiento de inventario sin especificar la sucursal (se usa la sucursal del usuario logueado)
 class MovimientoCreateSinSucursal(BaseModel):
-    """Forma del JSON que la API RECIBE (POST) para registrar un movimiento de inventario directamente en la sucursal del usuario logueado."""
+    """Esquema para registrar un movimiento de inventario directamente en la sucursal del usuario logueado."""
     producto_id: int
     tipo: models.TipoMovimiento
     cantidad: int

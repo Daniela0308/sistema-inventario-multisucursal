@@ -1,11 +1,14 @@
 const API_URL = "http://localhost:8000";
 
+// URL base de la API (cambiar según el entorno)
+// Esta constante define la URL base de la API a la que se realizarán las solicitudes.
+// Se puede cambiar esta URL según el entorno de desarrollo o producción. 
 async function apiRequest(path, token, options = {}) {
   const headers = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
-
+  // Realiza la petición a la API con los headers y opciones proporcionadas.
   const respuesta = await fetch(`${API_URL}${path}`, { ...options, headers });
-
+  // Si la respuesta no es exitosa, lanza un error con el detalle.
   if (!respuesta.ok) {
     const cuerpo = await respuesta.json().catch(() => ({}));
     throw new Error(cuerpo.detail || `Error ${respuesta.status}`);
@@ -14,6 +17,12 @@ async function apiRequest(path, token, options = {}) {
   return respuesta.json();
 }
 
+
+// ---------------------------------------------------------------------
+// AUTENTICACIÓN
+// ---------------------------------------------------------------------
+// Esta sección contiene las funciones relacionadas con la autenticación de usuarios. 
+// Verifica las credenciales del usuario y obtiene un token de autenticación.
 export const AuthAPI = {
   login: (email, password) =>
     apiRequest("/auth/login", null, {
@@ -22,6 +31,12 @@ export const AuthAPI = {
     }),
 };
 
+
+// ---------------------------------------------------------------------
+// PRODUCTOS
+// Esta sección contiene las funciones relacionadas con la gestión de productos en el inventario.
+// Proporciona funciones para listar, crear, actualizar y eliminar productos.
+// ---------------------------------------------------------------------
 export const ProductosAPI = {
   listar: (token) => apiRequest("/productos", token),
   crear: (token, datos) =>
@@ -31,6 +46,12 @@ export const ProductosAPI = {
   eliminar: (token, id) => apiRequest(`/productos/${id}`, token, { method: "DELETE" }),
 };
 
+
+// ---------------------------------------------------------------------
+// SUCURSALES
+// Esta sección contiene las funciones relacionadas con la gestión de sucursales en el inventario.
+// Proporciona funciones para listar, crear, actualizar y eliminar sucursales.
+// ---------------------------------------------------------------------
 export const SucursalesAPI = {
   listar: (token) => apiRequest("/sucursales", token),
   crear: (token, datos) =>
@@ -40,10 +61,17 @@ export const SucursalesAPI = {
   eliminar: (token, id) => apiRequest(`/sucursales/${id}`, token, { method: "DELETE" }),
 };
 
+// ---------------------------------------------------------------------
+// USUARIOS
+// Esta sección contiene las funciones relacionadas con la gestión de usuarios en el sistema.
+// Proporciona funciones para listar, obtener, crear, actualizar y eliminar usuarios, así como para gestionar roles y estados.
+// ---------------------------------------------------------------------
+
 export const UsuariosAPI = {
   listar: (token) => apiRequest("/usuarios", token),
   obtener: (token, id) => apiRequest(`/usuarios/${id}`, token),
   roles: (token) => apiRequest("/usuarios/roles", token),
+
   crear: (token, datos) =>
     apiRequest("/usuarios", token, { method: "POST", body: JSON.stringify(datos) }),
 
@@ -61,6 +89,9 @@ export const UsuariosAPI = {
   desactivar: (token, id) => apiRequest(`/usuarios/${id}`, token, { method: "DELETE" }),
 };
 
+// ---------------------------------------------------------------------
+// INVENTARIO
+// ---------------------------------------------------------------------
 export const InventarioAPI = {
   porSucursal: (token, sucursalId) => apiRequest(`/inventarios/${sucursalId}`, token),
   miSucursal: (token) => apiRequest("/inventarios/mi-sucursal", token),
@@ -86,6 +117,7 @@ export const ProveedoresAPI = {
   listar: (token) => apiRequest("/proveedores", token),
   crear: (token, datos) =>
     apiRequest("/proveedores", token, { method: "POST", body: JSON.stringify(datos) }),
+  
 };
 
 // ---------------------------------------------------------------------

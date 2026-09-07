@@ -56,6 +56,6 @@ class MovimientoInventario(Base):
     usuario_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     fecha_registro = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    producto = relationship("Producto", back_populates="movimientos")
-    sucursal = relationship("Sucursal", back_populates="movimientos")
+    producto = relationship("Producto", back_populates="movimientos") # uno a muchos: un producto puede tener muchos movimientos de inventario
+    sucursal = relationship("Sucursal", back_populates="movimientos") # uno a muchos: una sucursal puede tener muchos movimientos de inventario
     usuario = relationship("Usuario", back_populates="movimientos")

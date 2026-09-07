@@ -7,3 +7,11 @@ from .inventario_schema import InventarioOut, MovimientoCreate, MovimientoOut, A
 from .proveedor_schema import ProveedorOut, ProveedorCreate, ProveedorUpdate
 from .compra_schema import DetalleCompraIn, DetalleCompraOut, OrdenCompraCreate, OrdenCompraOut
 from .venta_schema import DetalleVentaIn, DetalleVentaOut, VentaCreate, VentaOut
+from .transferencia_schema import (
+	TransferenciaCreate,
+	TransferenciaPreparar,
+	TransferenciaDespachar,
+	TransferenciaRecepcion,
+	TransferenciaOut,
+	AlertaOut,
+)

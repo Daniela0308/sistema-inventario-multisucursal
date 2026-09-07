@@ -28,6 +28,9 @@ Actualmente el sistema cuenta con:
 * Módulo de ventas: registro de ventas con descuento inmediato de stock y validación de disponibilidad.
 * Alta rápida de proveedores y productos desde el propio flujo de compras/ventas (sin salir de la pantalla).
 * Control de permisos según el rol del usuario, incluyendo validación de sucursal en el backend (un usuario no-admin no puede operar ni ver movimientos de otra sucursal aunque intente manipular la petición).
+* Paso 1 del módulo de transferencias: modelos SQLAlchemy de transferencias y alertas alineados con el esquema de base de datos, incluyendo los datos de recepción parcial.
+* Paso 2 del módulo de transferencias: esquemas Pydantic para solicitudes, preparación, despacho, recepción y alertas.
+* Paso 3 del módulo de transferencias: servicio de negocio para solicitar, preparar, despachar y recibir transferencias, con actualización de inventario y alertas por faltantes.
 
 ## 4. Roles del sistema
 
@@ -126,17 +129,18 @@ sistema-inventario-multisucursal/
 │   │
 │   ├── schemas/
 │   │   ├── auth_schema.py, producto_schema.py, sucursal_schema.py, usuario_schema.py
-│   │   └── inventario_schema.py, proveedor_schema.py, compra_schema.py, venta_schema.py
+│   │   └── inventario_schema.py, proveedor_schema.py, compra_schema.py, venta_schema.py, transferencia_schema.py
 │   │
 │   ├── services/
 │   │   ├── inventario_service.py
 │   │   ├── compra_service.py
-│   │   └── venta_service.py
+│   │   ├── venta_service.py
+│   │   └── transferencia_service.py
 │   │
 │   ├── models/
 │   │   ├── __init__.py  (re-exporta todas las clases)
 │   │   ├── sucursal.py, usuario.py, producto.py, inventario.py
-│   │   └── proveedor.py, compra.py, venta.py, transferencia.py
+│   │   └── proveedor.py, compra.py, venta.py, transferencia.py, alerta.py
 │   │
 │   ├── auth/
 │   │   └── security.py  (hash de contraseñas, JWT, dependencias de autorización)
@@ -191,7 +195,14 @@ La base de datos utiliza PostgreSQL y contempla entidades para:
 * Transferencias.
 * Alertas.
 
-Las entidades de compras y ventas ya cuentan con integración completa (backend + frontend). Transferencias entre sucursales solo tiene el modelo de datos (`models/transferencia.py`); todavía no tiene router, servicio ni pantalla.
+Las entidades de compras y ventas ya cuentan con integración completa (backend + frontend). El módulo de transferencias se encuentra en implementación por pasos: ya están completados los modelos, esquemas y servicio; todavía faltan el router, su registro en `main.py` y la pantalla frontend.
+
+### Trazabilidad de cambios
+
+* **Paso 1 - Capa de datos:** se agregó el modelo `Alerta`, se incorporó el tratamiento de faltantes al modelo `Transferencia` y se actualizó `db/init.sql` con el tipo enum y las nuevas columnas.
+* **Paso 2 - Contratos API:** se agregó `transferencia_schema.py` con esquemas separados para solicitar, preparar, despachar y recibir transferencias, además de las respuestas de transferencias y alertas.
+* **Paso 3 - Lógica de negocio:** se agregó `transferencia_service.py`. El despacho descuenta inventario en origen; la recepción ingresa únicamente la cantidad recibida en destino; las recepciones parciales guardan el faltante y generan una alerta.
+* Los pasos 1 y 2 no implementaban el flujo operativo ni modificaban inventario; esa responsabilidad se incorporó en el Paso 3 mediante el servicio. Todavía falta exponerlo mediante endpoints.
 
 ## 9. API REST
 
@@ -359,7 +370,7 @@ docker compose down
 
 ### Pendiente de integración completa
 
-* Transferencias entre sucursales (el modelo `Transferencia` ya existe en `models/transferencia.py`, falta su router, servicio y pantalla).
+* Transferencias entre sucursales (modelos, esquemas y servicio implementados; falta router, registro en `main.py` y pantalla).
 * Gestión logística y estados de despacho.
 * Dashboard de indicadores.
 * Cálculo integrado del costo promedio ponderado en todos los flujos (compras ya lo aplica).

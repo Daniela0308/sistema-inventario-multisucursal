@@ -22,6 +22,12 @@ class UrgenciaTransferencia(str, enum.Enum):
     ALTA = "alta"
 
 
+class TratamientoFaltante(str, enum.Enum):
+    REENVIO = "reenvio"
+    AJUSTE = "ajuste"
+    RECLAMACION = "reclamacion"
+
+
 class Transferencia(Base):
     __tablename__ = 'transferencias'
 
@@ -59,9 +65,20 @@ class Transferencia(Base):
     fecha_recepcion = Column(DateTime(timezone=True))
     usuario_solicita_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     observaciones = Column(String(500))
+    cantidad_faltante = Column(Integer)
+    tratamiento_faltante = Column(
+        Enum(
+            TratamientoFaltante,
+            name="tratamiento_faltante",
+            create_type=False,
+            values_callable=lambda obj: [e.value for e in obj],
+        )
+    )
+    observaciones_recepcion = Column(String(500))
 
-    producto = relationship("Producto", back_populates="transferencias")
+    producto = relationship("Producto", back_populates="transferencias") # uno a muchos: un producto puede tener muchas transferencias
     # dos FKs a la misma tabla sucursales -> hay que indicar foreign_keys explicitamente
-    sucursal_origen = relationship("Sucursal", foreign_keys=[sucursal_origen_id], back_populates="transferencias_enviadas")
-    sucursal_destino = relationship("Sucursal", foreign_keys=[sucursal_destino_id], back_populates="transferencias_recibidas")
-    usuario_solicita = relationship("Usuario", back_populates="transferencias_solicitadas")
+    sucursal_origen = relationship("Sucursal", foreign_keys=[sucursal_origen_id], back_populates="transferencias_enviadas") # uno a muchos: una sucursal puede enviar muchas transferencias
+    sucursal_destino = relationship("Sucursal", foreign_keys=[sucursal_destino_id], back_populates="transferencias_recibidas") # uno a muchos: una sucursal puede recibir muchas transferencias
+    usuario_solicita = relationship("Usuario", back_populates="transferencias_solicitadas") # uno a muchos: un usuario puede solicitar muchas transferencias
+    alertas = relationship("Alerta", back_populates="transferencia") # uno a muchos: una transferencia puede tener muchas alertas

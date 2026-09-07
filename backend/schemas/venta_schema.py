@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 
 class DetalleVentaIn(BaseModel):
+    """Esquema para la entrada de detalles de venta (POST)."""
     producto_id: int
     cantidad: int
     # precio_unitario es OPCIONAL: si el cliente no lo manda, el
@@ -16,6 +17,7 @@ class DetalleVentaIn(BaseModel):
 
 
 class DetalleVentaOut(BaseModel):
+    """Esquema para la representación de un detalle de venta que la API DEVUELVE (GET, y tambien la respuesta de POST/PUT)."""
     id: int
     producto_id: int
     cantidad: int
@@ -27,11 +29,13 @@ class DetalleVentaOut(BaseModel):
 
 
 class VentaCreate(BaseModel):
+    """Esquema para la creación de una venta (POST)."""
     sucursal_id: int
     detalles: List[DetalleVentaIn]
 
 
 class VentaOut(BaseModel):
+    """Esquema para la representación de una venta que la API DEVUELVE (GET, y tambien la respuesta de POST/PUT)."""
     id: int
     sucursal_id: int
     usuario_id: int

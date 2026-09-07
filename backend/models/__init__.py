@@ -12,7 +12,13 @@ from .inventario import Inventario, MovimientoInventario, TipoMovimiento
 from .proveedor import Proveedor
 from .compra import OrdenCompra, DetalleCompra, EstadoOrdenCompra
 from .venta import Venta, DetalleVenta
-from .transferencia import Transferencia, EstadoTransferencia, UrgenciaTransferencia
+from .transferencia import (
+    Transferencia,
+    EstadoTransferencia,
+    UrgenciaTransferencia,
+    TratamientoFaltante,
+)
+from .alerta import Alerta, TipoAlerta
 
 __all__ = [
     "Sucursal",
@@ -22,5 +28,6 @@ __all__ = [
     "Proveedor",
     "OrdenCompra", "DetalleCompra", "EstadoOrdenCompra",
     "Venta", "DetalleVenta",
-    "Transferencia", "EstadoTransferencia", "UrgenciaTransferencia",
+    "Transferencia", "EstadoTransferencia", "UrgenciaTransferencia", "TratamientoFaltante",
+    "Alerta", "TipoAlerta",
 ]

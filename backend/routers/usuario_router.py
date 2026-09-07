@@ -16,7 +16,7 @@ from database import get_db
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 
-#   Enpoint para obtener todos los usuarios
+#   Endpoint para listar todos los usuarios
 @router.get("", response_model=List[schemas.UsuarioOut])
 def obtener_usuarios(db: Session = Depends(get_db)):
     """Retorna la lista de todos los usuarios en el sistema."""

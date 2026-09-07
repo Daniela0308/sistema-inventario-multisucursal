@@ -15,9 +15,9 @@ class Venta(Base):
     fecha_registro = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     total = Column(Numeric(12, 2), nullable=False, default=0)
 
-    sucursal = relationship("Sucursal", back_populates="ventas")
-    usuario = relationship("Usuario", back_populates="ventas")
-    detalles_venta = relationship("DetalleVenta", back_populates="venta", cascade="all, delete-orphan")
+    sucursal = relationship("Sucursal", back_populates="ventas") # uno a muchos: una sucursal puede tener muchas ventas
+    usuario = relationship("Usuario", back_populates="ventas") # uno a muchos: un usuario puede registrar muchas ventas
+    detalles_venta = relationship("DetalleVenta", back_populates="venta", cascade="all, delete-orphan") # uno a muchos: una venta puede tener muchos detalles de venta
 
 
 class DetalleVenta(Base):
@@ -30,5 +30,5 @@ class DetalleVenta(Base):
     precio_unitario = Column(Numeric(12, 2), nullable=False)
     descuento_pct = Column(Numeric(5, 2), nullable=False, default=0)
 
-    venta = relationship("Venta", back_populates="detalles_venta")
-    producto = relationship("Producto", back_populates="detalles_venta")
+    venta = relationship("Venta", back_populates="detalles_venta") # uno a muchos: una venta puede tener muchos detalles de venta
+    producto = relationship("Producto", back_populates="detalles_venta") # uno a muchos: un producto puede estar en muchos detalles de venta
